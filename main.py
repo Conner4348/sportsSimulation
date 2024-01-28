@@ -1,7 +1,7 @@
 # Here is the main file that simulates the sports matches.
 
 from itertools import combinations
-from random import randint
+from random import randint, choice
 
 # TEST DATA SET
 
@@ -37,21 +37,39 @@ class simulate:
 
         for match in matches:
             team_one, team_two = match
+            #print('')
+            #print(f'{match} is the current match being scheduled.')
+            found_match_week = False
 
-            for round in self.schedule:
-                if len(round) == 0:
-                    round.append(match)
-                    print(f'{match} appended to round: {self.schedule.index(round)} for being the first match.')
+            for match_week in self.schedule:
+                #if len(round) == 0:
+                #    round.append(match)
+                    #print(f'{match} appended to round: {self.schedule.index(round)} for being the first match.')
+                    #break
+                if found_match_week == True:
                     break
 
                 teams_in_round = []
-                for draw in round:
-                    teams_in_round += list(draw)
-                if (team_one not in teams_in_round) and (team_two not in teams_in_round):
-                    round.append(match) 
-                    print(f'{match} appended to round: {self.schedule.index(round)}.')
+                for scheduled_match in match_week:
+                    teams_in_round += list(scheduled_match)
+                #print(f'{teams_in_round} are the teams that are already in the current round.')
+                if (team_one not in teams_in_round) or (team_two not in teams_in_round):
+                
+                    #print(f'either {team_one} or {team_two} were not found in the current round, so they will be appended.')
+                    match_week.append(match) 
+                    #print(f'{match} appended to round: {self.schedule.index(round)}.')
+                    found_match_week = True
                     break
-                print(f'{match} not appended to any round...')
+                #else:
+                #    available_match_weeks = []
+                #    for index in range(len(self.schedule)):
+                #        if len(self.schedule[index]) < len(self.teams_list):
+                #            available_match_weeks.append(index)
+                #    print(available_match_weeks)
+                #    if len(available_match_weeks) > 0:
+                #        random_match_week = choice(available_match_weeks)
+                #        self.schedule[random_match_week].append(match)
+                #print(f'{match} not appended to any round...')
                         
 
         #while num_matches < total_matches:
@@ -85,44 +103,45 @@ class simulate:
                 print(match)
         
     def simulate_match(self):
-        for match in self.schedule:
-            team_one, team_two = (team for team in match)
-            
-            team_one_points = self.teams[team_one]
-            team_two_points = self.teams[team_two]
-            total_points = team_two_points + team_two_points
-
-            team_one_score = 0
-            team_two_score = 0
-
-            team_one_random = randint(0, total_points)
-            while team_one_random < team_one_points:
-                team_one_score += 1
-                team_one_points //= 2
-                team_one_points += 1
+        for match_week in self.schedule:
+            for match in match_week:
+                team_one, team_two = (team for team in match)
+                
+                team_one_points = self.teams[team_one]
+                team_two_points = self.teams[team_two]
                 total_points = team_two_points + team_two_points
+
+                team_one_score = 0
+                team_two_score = 0
+
                 team_one_random = randint(0, total_points)
+                while team_one_random < team_one_points:
+                    team_one_score += 1
+                    team_one_points //= 2
+                    team_one_points += 1
+                    total_points = team_two_points + team_two_points
+                    team_one_random = randint(0, total_points)
 
-            team_two_random = randint(0, total_points)
-            while team_two_random < team_two_points:
-                team_two_score += 1
-                team_two_points //= 2
-                team_two_points += 1
-                total_points = team_two_points + team_two_points
                 team_two_random = randint(0, total_points)
+                while team_two_random < team_two_points:
+                    team_two_score += 1
+                    team_two_points //= 2
+                    team_two_points += 1
+                    total_points = team_two_points + team_two_points
+                    team_two_random = randint(0, total_points)
 
-            if team_one_score > team_two_score:
-                self.teams[team_one] += 2
-                if (team_two_score - 1) <= 0:
-                    self.teams[team_two] = 1
-                else:
-                    self.teams[team_two] -= 1
-            if team_one_score < team_two_score:
-                self.teams[team_two] += 2
-                if (team_one_score - 1) <= 0:
-                    self.teams[team_one] = 1
-                else:
-                    self.teams[team_one] -= 1
+                if team_one_score > team_two_score:
+                    self.teams[team_one] += 2
+                    if (team_two_score - 1) <= 0:
+                        self.teams[team_two] = 1
+                    else:
+                        self.teams[team_two] -= 1
+                if team_one_score < team_two_score:
+                    self.teams[team_two] += 2
+                    if (team_one_score - 1) <= 0:
+                        self.teams[team_one] = 1
+                    else:
+                        self.teams[team_one] -= 1
 
     def print_rankings(self):
         sorted_rankings = {key: val for key, val in sorted(self.teams.items(), key=lambda item: item[1], reverse=True)}
@@ -140,11 +159,11 @@ round = 0
 while round < 1:
     test_simulate = simulate(teams)
     test_simulate.create_schedule()
-    #test_simulate.print_schedule()
+    test_simulate.print_schedule()
     #test_simulate.simulate_match()
     #test_simulate.print_rankings()
     round += 1
 
-#print('')
-#print('Final rankings:')
-#test_simulate.print_rankings()
+print('')
+print('Final rankings:')
+test_simulate.print_rankings()
